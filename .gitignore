@@ -2,3 +2,6 @@ fl-api/
 fl-client-ios/
 fl-seller-ios/
 .DS_Store
+
+# Backup files (often contain secrets — credential backups, env backups)
+*.bak
