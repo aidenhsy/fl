@@ -55,7 +55,7 @@
 ## 2. Dashboard
 
 ### 2.1 Dashboard Page
-- Welcome banner with online/offline toggle
+- Welcome banner with **"Pause new bookings"** toggle (vacation mode). When on: hidden from buyer search and existing windows can't be requested against. Existing confirmed bookings proceed normally; pending requests can still be accepted or declined.
 - Stats cards: today's earnings, this week, this month
 - Today's schedule (timeline view)
 - Pending booking requests (count + preview cards)
@@ -166,7 +166,7 @@
 - Calendar editor showing your account-wide availability — shared across all of your profiles (see ADR 0003)
 - Add a window: pick a date, start time, end time. Stored as 1-hour slot subdivisions.
 - Slots in HELD state (pending request) and BOOKED state are visible but locked from editing
-- Vacation mode toggle (hides you from new requests; existing bookings unaffected)
+- **Vacation mode** / "Pause new bookings" toggle. When on: hidden from buyer search and existing published windows can't be requested against — without having to delete your windows. Existing confirmed bookings proceed normally; pending requests already received can still be accepted or declined. Same toggle as on the Dashboard banner (2.1).
 - (Service area is per-profile — edit it on the profile under My Profiles)
 
 ### 8.3 Settings Page

@@ -62,7 +62,7 @@
 - **Hourly rate** display (e.g., ¥5,000 / hour) — v1 is hourly-only (see ADR 0003)
 - Other profiles by the same seller (if any) — separate cards with their own categories and rates; clicking switches profile context
 - Reviews section with pagination
-- "Book Now" sticky CTA button (disabled if seller has no published availability)
+- "Book Now" sticky CTA button (disabled if the seller has no published availability or has paused new bookings)
 
 ### 3.2 Booking Modal / Page
 - **Calendar date picker** — only dates with seller availability are selectable

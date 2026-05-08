@@ -114,11 +114,11 @@ Full seller profile page, shown in the context of the category the client search
   - 「XX時間の実績 / XX hours worked」
   - 「メンバー歴: XXXX年XX月から / Member since」
   - Service area chips
-  - **Availability indicator**: 受付中 (green) or 受付停止 (grey)
+  - **Booking availability indicator**: 受付中 (green) when the seller is accepting new bookings, or 受付停止中 (grey) when they have paused new bookings or have no upcoming published windows
 - **Rate card** (prominent, sticky or near top):
   - Rate for the searched category: ¥5,000 / 1時間
   - 「予約する / Book Now」button
-  - If unavailable: button disabled,「現在受付停止中です / Currently unavailable」
+  - If the seller has paused new bookings or has no upcoming published windows: button disabled,「現在新規予約を受付停止中です / Not accepting new bookings right now」
 - **自己紹介 / About**: Seller's bio
 - **このカテゴリについて / About this service**: Seller's category-specific description (from their service setup)
 - **他のサービス / Other services** (if seller has multiple categories):
@@ -284,7 +284,7 @@ Segmented tabs: **進行中** | **履歴**
 | Pending reviews | Bookings tab banner + push at 24h. Non-blocking. |
 | No bookings | Bookings tab empty state. |
 | No search results | Suggestion to adjust filters. |
-| Seller unavailable | Profile still visible but "Book Now" disabled. |
+| Seller paused new bookings or has no published windows | Profile still visible but "Book Now" disabled with「現在新規予約を受付停止中です」. |
 | Conversation without booking | Valid — pre-booking questions. |
 | Network offline | Banner. Cached data visible. |
 | Language switch | UI switches immediately. User content stays in original language. |

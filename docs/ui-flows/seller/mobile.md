@@ -134,7 +134,7 @@ The seller's at-a-glance dashboard.
 - **Profile views**: 「今週のプロフィール閲覧数: XX回 / Profile views this week: XX」
 - **Upcoming bookings**: Horizontal scrollable list of next 1–3 confirmed bookings (client name, date/time, category)
 - **Recent activity feed**: List of recent events (new booking request, review received, booking completed, payment received, custom job approved)
-- **Availability toggle**: 受付中 / 受付停止（Available / Unavailable）— when unavailable, seller is hidden from client search
+- **新規予約の受付を一時停止 / Pause new bookings** toggle (vacation mode). When on: seller is hidden from client search and existing published windows can't be requested against — without deleting the windows. Existing confirmed bookings proceed normally; pending requests already received can still be accepted or declined. Distinct from the published availability calendar — the calendar describes *when* you can work; this toggle is a global "not now" override.
 
 ---
 
@@ -263,7 +263,7 @@ Segmented tabs at the top: **新着** | **確定済み** | **履歴**
 | Seller cancels (within 48 hours) | Warning recorded. Client notified. Client receives 50% compensation. After 3 in 30 days → suspension. |
 | Payout method not set | Seller can accept bookings but cannot mark as completed. Persistent banner on Home. |
 | No booking requests | Empty state:「予約リクエストはまだありません。プロフィールを充実させましょう。」 |
-| Seller unavailable | Hidden from client search entirely. Existing confirmed bookings not affected. |
+| Seller paused new bookings (vacation mode) | Hidden from client search entirely. Existing published windows can't be requested against. Existing confirmed bookings not affected; pending requests already received can still be accepted or declined. |
 | No profile views | Home shows 0 views. Suggestion: add portfolio photos, improve bio. |
 | Network offline | Banner:「オフラインです。一部の機能が制限されています。」Cached data visible. |
 | Language switch | UI switches immediately. User-generated content remains in original language. |
