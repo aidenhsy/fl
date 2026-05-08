@@ -131,9 +131,11 @@ Full seller profile page, shown in the context of the category the client search
 
 Triggered by tapping "Book Now" on a seller profile.
 
-**Step 1 — Date & Time（日時の選択）**
-- Calendar view for date selection (today or future)
-- Time picker (slot or free input)
+**Step 1 — Slot Selection（日時の選択）**
+- Calendar view: only dates with seller availability are selectable
+- Tap a date → available 1-hour slots displayed as tiles (e.g., `15:00〜16:00`, `16:00〜17:00`, `17:00〜18:00`)
+- Buyer selects 1+ **contiguous** slots within a single window. Held or booked slots show as `他の予約あり / Already booked` and are not selectable.
+- Total duration and total price update live as slots are added/removed
 - 「次へ / Next」
 
 **Step 2 — Details（詳細の入力）**
@@ -142,18 +144,18 @@ Triggered by tapping "Book Now" on a seller profile.
 - 「次へ / Next」
 
 **Step 3 — Confirm & Pay（確認・決済）**
-- Summary: seller name + photo, category, date/time, location
+- Summary: seller name + photo, profile/category, slots (date + time range), location
 - Price breakdown:
-  - サービス料金 / Service rate: ¥XX,XXX / unit (seller's rate)
+  - 時給 / Hourly rate: ¥X,XXX × N時間
   - サービス料 / Platform fee: ¥X,XXX
   - 合計 / Total: ¥XX,XXX
 - **Payment method**:
   - Saved credit cards (Stripe)
   - 「カードを追加 / Add a card」→ Stripe Payment Sheet
-- 「予約をリクエスト / Request Booking」→ authorizes payment hold → Confirmation
-- Confirmation:「予約リクエストを送信しました！プロからの回答をお待ちください（24時間以内）。」
+- 「予約をリクエスト / Request Booking」→ authorizes payment hold + reserves slots in HELD state → Confirmation
+- Confirmation:「予約リクエストを送信しました！プロからの回答をお待ちください（**12時間以内**）。」
 
-> **Payment flow**: Card is **authorized (held)** at booking. Charged when seller marks complete and client confirms. If seller declines or doesn't respond within 24 hours, hold released.
+> **Payment + slot flow**: On request, slots enter HELD state across all of the seller's profiles, and the card is **authorized (held)** for the total. On accept, slots become BOOKED and the card is captured. If the seller declines or doesn't respond within **12 hours**, slot hold and payment hold are both released. The buyer may withdraw the request any time before the seller responds, releasing both holds immediately.
 
 ---
 
@@ -177,11 +179,12 @@ Triggered by tapping "Book Now" on a seller profile.
 Segmented tabs: **進行中** | **履歴**
 
 **Active bookings**:
-- Each card: seller name + photo, category, date/time, status badge
+- Each card: seller name + photo, profile/category, slots (date + time range), status badge
 - Statuses:
-  - リクエスト中 / Requested — waiting for seller (shows countdown)
+  - リクエスト中 / Requested — waiting for seller (shows 12h countdown)
   - 確定済み / Confirmed — seller accepted
-  - 進行中 / In Progress — booking day arrived
+  - 変更提案中 / Modification pending — a modification proposal is awaiting either party's response
+  - 進行中 / In Progress — booking start time arrived
   - 完了確認待ち / Pending Completion — seller marked complete
 - Tapping → Booking Detail (3.3.2)
 
@@ -189,21 +192,27 @@ Segmented tabs: **進行中** | **履歴**
 
 #### 3.3.2 Booking Detail（予約詳細）— Client View
 - Seller info (name, photo, rating) — tappable → Seller Profile
-- Booking details: category, date/time, location, client's notes
+- Booking details: profile/category, slots booked (date + time range, e.g. `2026年2月12日 15:00〜17:00 (2時間)`), location, client's notes
 - Status timeline: リクエスト → 確定 → 進行中 → 完了
-- Price breakdown
+- Price breakdown: hourly rate × slot count + platform fee = total
+- **Pending modification panel** (when active):
+  - If you proposed a change: shows proposed slots, price delta, seller's 12h response window, 「提案を取り消す / Withdraw Proposal」action
+  - If the seller proposed a change: shows proposed slots, price delta, your 12h countdown to respond, 「承認する / Approve」/「却下する / Reject」actions
 - Action buttons:
-  - Requested: 「キャンセル / Cancel」(free before seller accepts)
-  - Confirmed/In Progress: 「メッセージを送る」/「キャンセル / Cancel」
-  - Pending Completion: 「完了を確認 / Confirm Completion」/「問題を報告 / Report Issue」
+  - **Requested** (12h countdown): 「リクエストを取り消す / Withdraw Request」(free anytime before seller responds — hold released)
+  - **Confirmed**: 「メッセージを送る」/「予定変更を提案 / Propose Modification」/「キャンセル / Cancel」
+  - **In Progress**: 「メッセージを送る」/「キャンセル / Cancel」
+  - **Pending Completion**: 「完了を確認 / Confirm Completion」/「問題を報告 / Report Issue」
   - After completion: 「レビューを書く / Leave a Review」
   - Completed: 「レビューを見る / View Review」
 
-> **Client cancellation policy**:
-> - Before seller accepts: Free, hold released
-> - After accept, 48+ hours before: Free, hold released
-> - After accept, within 48 hours: 50% cancellation fee. Seller receives 50% compensation.
-> - Reason required: 予定が変わった / 別の方法で解決した / その他
+> **Client withdrawal/cancellation policy**:
+> - **Withdraw before seller responds (Requested state)**: Free anytime within the 12h response window. Slot hold and payment hold released immediately.
+> - **Cancel after accept, 48+ hours before**: Free, payment hold released, slot returned to seller's availability
+> - **Cancel after accept, within 48 hours**: 50% cancellation fee. Seller receives 50% compensation.
+> - Reason required (cancellation only): 予定が変わった / 別の方法で解決した / その他
+
+> **Propose Modification（予定変更を提案）**: opens a slot picker showing the seller's currently-available (unbooked, unheld) slots. Confirm the new slot set; net-new slots enter HELD state immediately, blocking that time across all of the seller's profiles. The seller has 12 hours to approve. On approval, the booking's slots are replaced and the price delta is captured (extension) or refunded (shortening) at the booking's originally captured hourly rate. On rejection or timeout, the held delta is released and the original booking is unchanged. You can withdraw your proposal any time before the seller responds.
 
 #### 3.3.3 Confirm Completion（完了確認）
 - Push notification when seller marks complete
@@ -240,8 +249,13 @@ Segmented tabs: **進行中** | **履歴**
 
 - Push notifications for:
   - 予約が受付されました / Booking accepted by seller
+  - 予約が辞退されました / Booking declined by seller
   - 予約が完了しました / Booking marked complete — confirm and review
-  - 予約の期限が切れました / Booking expired — seller didn't respond
+  - 予約の期限が切れました / Booking expired — seller didn't respond within 12 hours
+  - 予定変更が提案されました / Modification proposed by seller — review and respond (12h)
+  - 提案が承認されました / Your modification proposal was approved
+  - 提案が却下されました / Your modification proposal was rejected
+  - 提案の期限が切れました / Modification proposal expired
   - 新しいメッセージ / New message from seller
   - 決済が完了しました / Payment processed
   - セラーがキャンセルしました / Seller cancelled
@@ -256,9 +270,12 @@ Segmented tabs: **進行中** | **履歴**
 
 | Scenario | Behavior |
 |---|---|
-| Seller doesn't respond | 24 hours → booking expires. Client notified, hold released. Prompted to browse other sellers. |
+| Seller doesn't respond | **12 hours** → booking expires. Client notified, slot + payment holds released. Prompted to browse other sellers. |
 | Seller cancels after accepting | Client notified with reason. Within 48h → seller warning, client gets 50% compensation. |
-| Client cancels before accept | Free, hold released. |
+| Client withdraws before accept | Free, slot + payment holds released. |
+| Modification proposal expired | After **12 hours** with no response from the counterparty, the proposal is auto-rejected. Held delta slots released; original booking unchanged. |
+| Originator withdraws modification | Held delta slots released immediately. Original booking unchanged. |
+| Slot taken before request submitted | If two buyers request the same slot simultaneously, only the first submission acquires the hold. Second buyer sees「この時間は他の方が予約済みです / This slot was just taken」and is returned to slot selection. |
 | Client cancels after accept (48+ hours) | Free, hold released. Seller notified. |
 | Client cancels after accept (within 48 hours) | 50% fee charged. Seller compensated. |
 | Completion dispute | Client reports issue. Support case created. Hold remains until resolved. |

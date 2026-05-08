@@ -57,24 +57,27 @@
 ## 3. Seller Profile & Booking
 
 ### 3.1 Seller Profile Page
-- Header: photo, name, rating, location
+- Header: photo, name, category, rating, location
 - About / bio section
-- Service listings table (name, price, duration)
+- **Hourly rate** display (e.g., ¥5,000 / hour) — v1 is hourly-only (see ADR 0003)
+- Other profiles by the same seller (if any) — separate cards with their own categories and rates; clicking switches profile context
 - Reviews section with pagination
-- "Book Now" sticky CTA button
+- "Book Now" sticky CTA button (disabled if seller has no published availability)
 
 ### 3.2 Booking Modal / Page
-- Select a service listing
-- Calendar date picker
-- Time slot grid (based on availability)
+- **Calendar date picker** — only dates with seller availability are selectable
+- **Slot grid** for the selected date: 1-hour slots aligned to the seller's window starts (e.g., 15:00–16:00, 16:00–17:00, 17:00–18:00). Held or booked slots show as unavailable.
+- Buyer selects 1+ **contiguous** slots within a single window; total time and price update live
 - Location input (if applicable)
 - Notes field (optional)
-- Price summary sidebar
-- "Confirm Booking" button
+- Price summary sidebar: hourly rate × slot count + platform fee = total
+- "Request Booking" button — sends a request to the seller (NOT an instant confirmation). Card is authorized for the total at this step.
 
-### 3.3 Booking Confirmation Page
-- Success message
-- Booking summary details
+### 3.3 Request Sent Page
+- "Request submitted! The seller has 12 hours to accept or decline."
+- Booking summary details (seller, profile, slots, total)
+- Note: "Your slots are reserved while the seller decides. If they decline or don't respond within 12 hours, the hold is released and your card is not charged."
+- "Withdraw Request" button (available until the seller responds)
 - "Message Seller" link
 - "View My Bookings" link
 
@@ -84,15 +87,22 @@
 
 ### 4.1 My Bookings Page
 - Tabs: Upcoming | Past | Cancelled
-- Table/card layout: seller, service, date/time, status badge
+- Table/card layout: seller, profile/category, slots (date + time range), status badge (Requested / Confirmed / In Progress / Completed / Declined / Expired / Withdrawn / Cancelled)
 - Click row → Booking Detail
 
 ### 4.2 Booking Detail Page
-- Full booking info
-- Status tracker (timeline visualization)
+- Full booking info (seller, profile/category, slots, location, notes)
+- Status tracker (timeline visualization): Requested → Confirmed → In Progress → Completed
+- **Pending modification panel** (when active):
+  - If you proposed a change: shows proposed slots, price delta, seller's 12h response window, "Withdraw Proposal" action
+  - If the seller proposed a change: shows proposed slots, price delta, your 12h countdown to respond, "Approve" / "Reject" actions
 - "Message Seller" button
-- "Cancel Booking" button (with policy info)
+- Action buttons (context-dependent):
+  - **Requested** (12h countdown): "Withdraw Request"
+  - **Confirmed**: "Propose Modification" / "Cancel Booking" (with policy info)
 - After completion: "Leave a Review" section
+
+> **Propose Modification**: opens a slot picker showing the seller's currently-available (unbooked, unheld) slots. Confirm the new slot set; net-new slots enter HELD state immediately. The seller has 12 hours to approve. On approval, the booking's slots are replaced and the price delta is captured (extension) or refunded (shortening) at the booking's originally captured hourly rate. On rejection or timeout, the held delta is released and the original booking is unchanged. You can withdraw your proposal any time before the seller responds.
 
 ### 4.3 Rate & Review
 - Inline on booking detail page after completion

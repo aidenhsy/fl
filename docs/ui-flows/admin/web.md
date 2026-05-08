@@ -45,13 +45,14 @@
 - Click row → Seller Detail
 
 ### 3.4 Seller Detail
-- Profile info
-- Service listings
-- Booking history
+- Account info (auth, KYC, contact, payout)
+- Profiles (one per category) with hourly rate, status, individual review aggregates
+- Account-level availability calendar snapshot (read-only — see ADR 0003)
+- Booking history (across all profiles)
 - Earnings summary
-- Reviews received
+- Reviews received (per profile)
 - Verification documents (ID, certifications)
-- Actions: approve verification, suspend, ban, delete account
+- Actions: approve verification, suspend a single profile, suspend the account, ban, delete account
 
 ### 3.5 Pending Verifications
 - Table of sellers awaiting verification
@@ -78,16 +79,18 @@
 ## 5. Bookings
 
 ### 5.1 All Bookings
-- Table: booking ID, buyer, seller, service, date, amount, status
+- Table: booking ID, buyer, seller, profile (category), slots (date + time range), amount, status
+- Status values: Requested / Confirmed / In Progress / Pending Completion / Completed / Declined / Expired / Withdrawn / Cancelled
 - Search and filter (by status, date range, category)
 - Click row → Booking Detail
 
 ### 5.2 Booking Detail
-- Full booking info (buyer, seller, service, date, time, location)
-- Status history timeline
-- Payment info (amount, commission, payout status)
+- Full booking info: buyer, seller, profile/category, slots (date + time range), location, hourly rate at capture time
+- Status history timeline (including modification events: proposed, approved, rejected, withdrawn, expired)
+- **Modification history**: list of past and pending modification proposals — originator, proposed slots, decision, decided-at timestamp, hold expiry (if pending)
+- Payment info (amount, commission, payout status, refunds for shortenings)
 - Messages between buyer and seller (read-only)
-- Actions: cancel booking, issue refund
+- Actions: cancel booking, issue refund, force-resolve a stuck modification proposal
 
 ---
 
@@ -136,7 +139,7 @@
 - Remove admin
 
 ### 8.3 Notification Templates
-- Email templates for: booking confirmation, booking cancellation, payment receipt, seller approval, seller rejection
+- Email templates for: booking request received, booking accepted, booking declined, booking expired (12h timeout), booking cancellation, modification proposed, modification approved, modification rejected, modification expired, request withdrawn, payment receipt, seller approval, seller rejection
 - Edit template content
 
 ---

@@ -26,17 +26,18 @@
 - Bio / about you
 - "Next" button
 
-**Step 2 — Service Setup**
-- Select service category
-- Service title
+**Step 2 — Profile Setup (per category)**
+- Select service category (single-select; one profile per category in v1)
+- Headline
 - Description
-- Pricing model selector: hourly / flat rate / custom
-- Rate amount input
+- **Hourly rate** (¥/hour) — single input. v1 is hourly-only; per-day and per-session rate types are deferred (see ADR 0003).
+- Service area: map with draggable radius (per profile)
 - "Next" button
 
-**Step 3 — Availability**
-- Weekly schedule grid (click to toggle time blocks)
-- Service area: map with draggable radius
+**Step 3 — Availability Calendar (account-level)**
+- Banner: "This calendar is shared across all of your profiles. A slot booked through one profile blocks the same hour on every other profile (see ADR 0003)."
+- Window editor: pick a date and a start/end time (e.g., `Fri 2026-02-12 15:00–17:00`). Each window splits into fixed 1-hour slots aligned to the window's start.
+- Calendar view of existing windows; click a window to remove or shorten (only slots that are not held or booked can be removed)
 - "Next" button
 
 **Step 4 — Verification**
@@ -65,25 +66,30 @@
 ## 3. Booking Management
 
 ### 3.1 Booking Requests Page
-- Table of incoming requests
-- Columns: buyer, service, requested date/time, location, actions
+- Table of incoming requests, each with a **12-hour response countdown** (red when < 1 hour remains; auto-declines on expiry)
+- Columns: buyer, profile (which of your profiles the buyer booked through), requested slots (date + time range), location (if applicable), countdown, actions
 - Actions: "Accept" / "Decline" buttons
+- Buyer-withdrawn requests disappear from the list immediately
 - Click row → full request detail
 
 ### 3.2 Calendar / Schedule Page
-- Full calendar view (day / week / month toggle)
-- Bookings displayed as color-coded blocks
-- Click a booking → detail sidebar or modal
+- Full **account-level** calendar (day / week / month toggle) — single view across all of your profiles
+- Three slot states are visually distinct: **available** (your published windows), **held** (pending request, dashed border), **booked** (confirmed, solid block)
+- Booked/held blocks label which profile the booking came through
+- Click a slot → booking detail (if held/booked) or window editor (if available)
 
 ### 3.3 Booking Detail Page
 - Buyer info (name, photo, rating)
-- Service, date, time, location
-- Status: Pending → Confirmed → In Progress → Completed
-- Action buttons:
-  - "Start Session"
-  - "Complete Session"
-  - "Cancel" (with reason dropdown)
-- "Message Buyer" button
+- Profile (which of your profiles the buyer booked through) + booked slots (date + time range, e.g., `2026-02-12 15:00–17:00`, 2 hours)
+- Location (if applicable), buyer's optional message
+- Status: Requested → Confirmed → In Progress → Completed (or Declined / Expired / Withdrawn / Cancelled)
+- Pricing: hourly rate × slot count = total. Captured at accept (or at modification approval for added slots)
+- Action buttons (context-dependent):
+  - **Requested** (12h countdown shown): "Accept" / "Decline"
+  - **Confirmed (upcoming)**: "Propose Modification" / "Message Buyer" / "Cancel"
+  - **In Progress**: "Start Session" / "Complete Session" / "Cancel"
+  - **With a modification you proposed (pending buyer approval)**: "Withdraw Proposal"
+  - **With a modification proposed by the buyer (pending your response, 12h countdown)**: "Approve" / "Reject"
 - Session timer (when in progress)
 
 ---
@@ -119,21 +125,24 @@
 
 ---
 
-## 6. Service Listings
+## 6. Profiles
 
-### 6.1 My Services Page
-- Table/grid of service listings
-- Columns: title, category, price, status (active/paused)
-- "Add New Service" button
-- Click row → Edit Service
+### 6.1 My Profiles Page
+- Table/grid of your profiles (one per category in v1)
+- Columns: category, headline, **hourly rate** (¥/hour), status (active/paused)
+- "Add New Profile" button
+- Click row → Edit Profile
 
-### 6.2 Add / Edit Service Page
-- Service title
-- Category dropdown
+### 6.2 Add / Edit Profile Page
+- Category dropdown (single-select; one profile per category in v1)
+- Headline + bio
 - Description (rich text)
-- Pricing model + rate
+- Portfolio media
+- **Hourly rate** (¥/hour) — v1 is hourly-only (see ADR 0003)
+- Service area
 - Toggle: active / paused
 - "Save" / "Delete" buttons
+- (Availability is set on the account-level calendar — see 8.2)
 
 ---
 
@@ -153,10 +162,12 @@
 - Profile preview (as buyers see it)
 - "Edit Profile" button → inline edit
 
-### 8.2 Availability Settings Page
-- Weekly schedule grid editor
-- Service area map with radius control
-- Vacation mode toggle
+### 8.2 Availability Calendar (account-level)
+- Calendar editor showing your account-wide availability — shared across all of your profiles (see ADR 0003)
+- Add a window: pick a date, start time, end time. Stored as 1-hour slot subdivisions.
+- Slots in HELD state (pending request) and BOOKED state are visible but locked from editing
+- Vacation mode toggle (hides you from new requests; existing bookings unaffected)
+- (Service area is per-profile — edit it on the profile under My Profiles)
 
 ### 8.3 Settings Page
 - Account settings (email, password, phone)
@@ -173,7 +184,7 @@
 - Bookings (with request count badge)
 - Calendar
 - Messages (with unread count)
-- Services
+- Profiles
 - Earnings
 - Reviews
 - Profile & Settings
