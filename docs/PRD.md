@@ -93,10 +93,10 @@ A seller account holds one or more profiles. Each profile is scoped to a single 
 - Hold creation is **first-come-first-served and atomic** — if two buyers request the same slot simultaneously, exactly one acquires the hold; the other sees "slot just taken". This prevents overbooking at the request layer.
 - Total price = booked profile's hourly rate × number of slots. Price is shown at request time and captured on accept.
 
-**Bilateral modification proposals.** After a booking is confirmed, the engagement may need to change — e.g., during a chat the seller realises a 1-hour cleaning won't be enough and proposes 3 hours instead. Either party (buyer or seller) can propose a modification:
-- A modification can change the **time** and/or **duration** of the booking. The new slots must be currently available on the seller's account-level calendar (i.e., not booked or held by anyone else).
-- On submission, any **net-new slots** in the proposal enter the same hold state as a fresh request, blocking the seller's calendar across all profiles. Original slots remain in the BOOKED state until the proposal resolves.
-- The counterparty has **12 hours** to approve or reject. On approval, the booking's slot set is replaced with the proposed set (released slots return to availability, new slots become BOOKED), and any price delta is captured (extension) or refunded (shortening). On rejection or timeout, the held delta is released and the booking reverts to its original slots — no charge.
+**Bilateral modification proposals.** During the 12h accept window *and* after a booking is confirmed, the engagement may need to change — e.g., during a chat the seller realises a 1-hour cleaning won't be enough and proposes 3 hours instead, or counters a pending request with a different start time before accepting. Either party (buyer or seller) can propose a modification:
+- A modification can change the **time** and/or **duration** of the booking. The new slots must not already be booked or held by anyone else (the no-overbooking constraint is enforced on every proposal). **Buyer-initiated** proposals additionally must fall inside a published availability window — the buyer can't demand times the seller hasn't said they're free for. **Seller-initiated** proposals skip that window check: the seller proposing a new time is itself the availability signal, so they don't have to first publish a window and then propose against it.
+- On submission, any **net-new slots** in the proposal enter the same hold state as a fresh request, blocking the seller's calendar across all profiles. Original slots remain in their current state — HELD if the booking is still INCOMING, BOOKED if already confirmed — until the proposal resolves.
+- The counterparty has **12 hours** to approve or reject. On approval, the booking's slot set is replaced with the proposed set (released slots return to availability, new slots take the booking's current state — HELD if still INCOMING, BOOKED if already confirmed), and any price delta is captured (extension) or refunded (shortening). Approving a modification is a terms change, not an accept; an INCOMING booking stays INCOMING after approval and the seller still has to accept or decline it. On rejection or timeout, the held delta is released and the booking reverts to its original slots — no charge.
 - Pricing on a modification uses the booking's **original captured hourly rate**, not the seller's current rate (so a seller raising their listed rate after the booking does not retroactively reprice).
 - **The originator may withdraw the proposal at any time before the counterparty responds**, immediately releasing the delta hold and leaving the original booking intact. Either side can be the originator, so this withdrawal right applies bilaterally.
 
@@ -121,7 +121,14 @@ Calendar export (`.ics`, Google Calendar sync) is deferred post-MVP.
 - Aggregate rating is computed and displayed per profile
 - Account-level trust signals (e.g., "verified seller since X, N total bookings across all profiles") are deferred to v2 — flagged for product owner review
 
-### 8. Admin Panel (Web)
+### 8. Favorites (Buyer)
+- A buyer can **favorite** a seller profile from the browse list or profile page (the heart icon on a profile card).
+- Favorites are **profile-scoped**, not account-scoped — favoriting Tanaka's photographer profile does not favorite his driver profile. This is consistent with ADR 0001 (profile is the commercial unit).
+- The full list of favorited profiles is reachable from the buyer's "My Page" → "My favorites" screen.
+- Soft-deleted or deactivated profiles remain in the underlying favorites table but are filtered out of the favorites list view (sellers can re-activate without losing existing favorites).
+- v1 favorites are a binary heart only — no tags, notes, or folders.
+
+### 9. Admin Panel (Web)
 - User management (buyers, sellers, and profiles — e.g., suspending a profile without suspending the account)
 - Service category management
 - Booking and transaction oversight
@@ -170,9 +177,10 @@ Focus on launching with a single service category (e.g., personal training) to v
 5. In-app messaging (per booking)
 6. Payment processing (Stripe)
 7. Ratings and reviews (attached to `profile_id`)
-8. Push notifications
-9. Basic admin panel
-10. v1 constraint: one profile per category per seller (`@@unique(seller_id, category_id)`)
+8. Buyer favorites (profile-scoped heart + "My favorites" list)
+9. Push notifications
+10. Basic admin panel
+11. v1 constraint: one profile per category per seller (`@@unique(seller_id, category_id)`)
 
 ### Out of Scope for MVP
 - Recurring bookings
