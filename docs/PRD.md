@@ -104,8 +104,23 @@ Calendar export (`.ics`, Google Calendar sync) is deferred post-MVP.
 
 ### 5. Real-Time Features
 - In-app messaging between buyer and seller, scoped per (buyer, seller profile) — each thread is anchored to one profile/category, so a buyer who engages two profiles of the same seller has two distinct threads (see ADR 0002).
-- Push notifications for booking requests, confirmations, reminders, and messages
 - Live status updates on active bookings (e.g., "provider en route", "session started", "completed")
+
+**Push notifications.** Every booking lifecycle transition and modification event fires a Firebase Cloud Messaging push to the affected party in addition to inserting a `notifications` row for the in-app inbox. Each device registers its FCM token with `POST /me/device-tokens` (idempotent upsert) at app launch and after auth; the same human can hold both a `BUYER` and `SELLER` token on one device (separate bundle ids → separate tokens), and events fan out only to the relevant app:
+
+| Event | Recipient | Recipient app |
+|---|---|---|
+| Booking requested | Seller | SELLER |
+| Booking confirmed / declined | Buyer | BUYER |
+| Booking completed | Buyer | BUYER |
+| Booking cancelled | Other party | swap |
+| Booking withdrawn (buyer-side) | Seller | SELLER |
+| Modification proposed | Counterparty | swap |
+| Modification approved / rejected | Originator | swap |
+| Modification withdrawn | Counterparty | swap |
+| New chat message | Other participant | swap |
+
+Push body + title are localised server-side to the recipient's `users.language`. The payload carries `type`, `bookingId`, and (where relevant) `conversationId` / `modificationId` so the iOS app can deep-link on tap. Each event also drops a `SYSTEM`-type message into the booking's conversation so the chat thread doubles as a permanent audit trail and the in-conversation view updates live via the existing chat WebSocket — push covers the "app closed" path; the SYSTEM message covers the "app open in another tab" path. FCM tokens reported as `UNREGISTERED` / `INVALID_ARGUMENT` are reaped automatically from `device_tokens` on the next failed send.
 
 ### 6. Payments
 - In-app payment processing (Stripe or equivalent)
