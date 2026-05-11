@@ -5,3 +5,6 @@ fl-seller-ios/
 
 # Backup files (often contain secrets — credential backups, env backups)
 *.bak
+
+# Claude Code local session state
+.claude/
