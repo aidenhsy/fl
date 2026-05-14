@@ -123,11 +123,15 @@ Calendar export (`.ics`, Google Calendar sync) is deferred post-MVP.
 Push body + title are localised server-side to the recipient's `users.language`. The payload carries `type`, `bookingId`, and (where relevant) `conversationId` / `modificationId` so the iOS app can deep-link on tap. Each event also drops a `SYSTEM`-type message into the booking's conversation so the chat thread doubles as a permanent audit trail and the in-conversation view updates live via the existing chat WebSocket — push covers the "app closed" path; the SYSTEM message covers the "app open in another tab" path. FCM tokens reported as `UNREGISTERED` / `INVALID_ARGUMENT` are reaped automatically from `device_tokens` on the next failed send.
 
 ### 6. Payments
-- In-app payment processing (Stripe or equivalent)
-- Buyer pays upon booking confirmation or after service completion (configurable per category)
-- Platform commission deducted from seller payout
-- Seller payout dashboard with earnings history
-- Refund and dispute handling
+- In-app payment processing via Stripe.
+- Two buyer payment methods are offered at checkout (chosen per booking):
+  - **Card** — authorize-and-capture model. Funds are held on the buyer's card when the booking is created (status `INCOMING`); captured when the booking is `COMPLETED`. Modifications between `CONFIRMED` and `COMPLETED` re-authorize off-session against the saved card without buyer interaction.
+  - **Konbini (コンビニ払い)** — pay-after-acceptance model for buyers who prefer cash/convenience-store payment. The seller accepts (or both sides agree on a modification) **before** any payment is requested, so the buyer never has to make a second konbini payment for a price change. Lifecycle: `INCOMING` → seller accepts → `AWAITING_PAYMENT` (Stripe konbini voucher issued, valid 24h, buyer pushed) → buyer pays at 7-Eleven / Lawson / FamilyMart / etc. → webhook flips status to `CONFIRMED` → service runs → `COMPLETED` (no capture step; already paid).
+- Konbini constraints: JPY only, ¥120–¥300,000, voucher expires 24h after issue. If the voucher expires unpaid, the booking auto-cancels and the slot is freed; both sides are notified.
+- Modifications are locked once a konbini voucher is issued (`AWAITING_PAYMENT`) until the voucher is paid or expires — this prevents the buyer from being asked to make a second konbini payment.
+- Platform commission deducted from seller payout (same `application_fee_amount` model regardless of payment method).
+- Seller payout dashboard with earnings history.
+- Refund and dispute handling.
 - Stripe Connect and payout settings live on the seller account, not the profile. All of a seller's profiles share one payout destination.
 
 ### 7. Ratings & Reviews
@@ -190,7 +194,7 @@ Focus on launching with a single service category (e.g., personal training) to v
 3. Buyer search and discovery (list + map view), profile-scoped
 4. Booking request and acceptance flow
 5. In-app messaging (per booking)
-6. Payment processing (Stripe)
+6. Payment processing (Stripe — card + konbini, see §6)
 7. Ratings and reviews (attached to `profile_id`)
 8. Buyer favorites (profile-scoped heart + "My favorites" list)
 9. Push notifications
