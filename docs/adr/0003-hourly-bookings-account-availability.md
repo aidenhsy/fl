@@ -1,10 +1,12 @@
 ---
-status: accepted
+status: accepted; pricing portion superseded by ADR 0004
 date: 2026-05-08
 decision-makers: [aiden]
 ---
 
 # Hourly-only bookings with account-level availability (v1)
+
+> **Status note (2026-05-15).** This ADR originally bundled two decisions: (a) account-level availability with a `slot_occupancy` table and cross-profile blocking, and (b) hourly-only pricing (`hourly_rate` as the only price column; no `rate_type` enum). Decision (a) remains in force. Decision (b) is **superseded by [ADR 0004](0004-session-and-hourly-pricing.md)**, which reintroduces a `pricing_type` enum (`SESSION` | `HOURLY`) following the product's repositioning around creative services. The text below is preserved verbatim; read alongside ADR 0004 for the current pricing model.
 
 ## Context and Problem Statement
 
