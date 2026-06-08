@@ -42,7 +42,7 @@ infrastructure/           # Docker, CI/CD, deployment configs
 
 ## MVP Scope (Phase 1)
 
-Single service category to validate the model. Includes: auth, profiles, search/discovery (list + map), booking flow, in-app messaging, Stripe payments, ratings/reviews, push notifications, basic admin panel.
+Two active categories at launch — `photographer` and `videographer` (see ADR 0007). Includes: auth, profiles, search/discovery (list + map), booking flow, in-app messaging, Stripe payments, ratings/reviews, push notifications, basic admin panel.
 
 **Out of scope for MVP**: recurring bookings, multi-currency, advanced analytics, automated identity verification, promotional features.
 

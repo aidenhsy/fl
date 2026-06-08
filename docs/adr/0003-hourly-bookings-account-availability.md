@@ -1,5 +1,5 @@
 ---
-status: accepted; pricing portion superseded by ADR 0004
+status: accepted; pricing portion superseded by ADR 0004; windowed-only invariant superseded by ADR 0008
 date: 2026-05-08
 decision-makers: [aiden]
 ---

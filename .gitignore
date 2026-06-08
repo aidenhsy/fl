@@ -1,6 +1,8 @@
 fl-api/
 fl-client-ios/
 fl-seller-ios/
+fl-admin/
+seed-photos/
 .DS_Store
 
 # Backup files (often contain secrets — credential backups, env backups)
@@ -8,3 +10,6 @@ fl-seller-ios/
 
 # Claude Code local session state
 .claude/
+
+# Obsidian local vault config
+.obsidian/
